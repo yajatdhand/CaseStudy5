@@ -1,0 +1,327 @@
+CASE STUDY 11th MARCH : - 
+========================
+
+PIZZA MANAGEMENT APPLICATION USING JPA : - 
+=========================================
+
+1.Class Test : -
+--------------------
+package com.pizzamanagement.Ui;
+
+import com.pizzamanagement.model.Pizza;
+import com.pizzamanagement.service.PizzaService;
+import com.pizzamanagement.service.PizzaServiceImpl;
+
+public class Test {
+
+	public static void main(String[] args) {
+		
+		PizzaService ps = new PizzaServiceImpl();   //Creating object of PizzaService Class and initializing using constructor of PizzaServiceImpl for overriding.
+		
+		//1.Adding Pizza (Create and Insert Operation)
+//		Pizza p1 = new Pizza(1, "OTC", 500, "JPR");
+//		Pizza p2 = new Pizza(2, "Peri Peri", 700, "BOM");
+//		Pizza p3 = new Pizza(3, "Exotic", 750, "UP");
+//		Pizza p4 = new Pizza(4, "Cheesy 7", 900, "DEL");
+//		Pizza p5 = new Pizza(5, "Moroccan", 850, "GUJ");
+//		ps.addPizza(p1);
+//		ps.addPizza(p2);
+//		ps.addPizza(p3);		
+//		ps.addPizza(p4);	
+//		ps.addPizza(p5);
+								
+		
+		//2.Updating Pizza (Update Operation)
+//		Pizza p6 = ps.findPizzaByNo(3);	//(Find Operation)
+//		p6.setPizzaPrice(1000);
+//		p6.setDeliveryAdd("BAN");
+//		ps.updatePizza(p6);
+		
+		//3.Deleting Pizza (Delete Operation)
+//		Pizza p7 = ps.findPizzaByNo(5);
+//		ps.deletePizza(p7);
+	}
+}
+
+
+2. Class Pizza (Entity Class) : -
+------------------------------------------
+package com.pizzamanagement.model;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity 
+public class Pizza {
+	@Id //PrimaryKey pizzaNo
+	private int pizzaNo;
+	private String pizzaType;
+	private int pizzaPrice;
+	private String DeliveryAdd;
+
+// Getters and Setters : -
+
+	public int getPizzaNo() {
+		return pizzaNo;
+	}
+	public void setPizzaNo(int pizzaNo) {
+		this.pizzaNo = pizzaNo;
+	}
+	public String getPizzaType() {
+		return pizzaType;
+	}
+	public void setPizzaType(String pizzaType) {
+		this.pizzaType = pizzaType;
+	}
+	public int getPizzaPrice() {
+		return pizzaPrice;
+	}
+	public void setPizzaPrice(int pizzaPrice) {
+		this.pizzaPrice = pizzaPrice;
+	}
+	public String getDeliveryAdd() {
+		return DeliveryAdd;
+	}
+	public void setDeliveryAdd(String deliveryAdd) {
+		DeliveryAdd = deliveryAdd;
+	}
+
+// To String Method : -
+
+	@Override
+	public String toString() {
+		return "Pizza [pizzaNo=" + pizzaNo + ", pizzaType=" + pizzaType + ", pizzaPrice=" + pizzaPrice
+				+ ", DeliveryAdd=" + DeliveryAdd + "]";
+	}
+	
+// Default Constructor : -
+
+	public Pizza() {
+		// TODO Auto-generated constructor stub
+	}
+// Paramaterized Constructor : -
+
+	public Pizza(int pizzaNo, String pizzaType, int pizzaPrice, String deliveryAdd) {
+		super();
+		this.pizzaNo = pizzaNo;
+		this.pizzaType = pizzaType;
+		this.pizzaPrice = pizzaPrice;
+		DeliveryAdd = deliveryAdd;
+	}
+	
+	
+	
+}
+
+3. Interface PizzaService : -
+------------------------------------
+package com.pizzamanagement.service;
+
+import com.pizzamanagement.model.Pizza;
+
+public interface PizzaService {
+
+// Services offered by Pizza Management Application (Abstract Methods) : -	
+
+	void addPizza(Pizza p);
+	
+	void updatePizza(Pizza p);
+	
+	void deletePizza(Pizza p);
+	
+	Pizza findPizzaByNo(int p);
+	
+}
+
+4. PizzaServiceImpl : -
+-----------------------------
+package com.pizzamanagement.service;
+
+import com.pizzamanagement.Dao.PizzaDao;
+import com.pizzamanagement.Dao.PizzaDaoImpl;
+import com.pizzamanagement.model.Pizza;
+
+public class PizzaServiceImpl implements PizzaService {
+
+	private PizzaDao dao;
+	
+	public PizzaServiceImpl()		// Default Constructor
+	{
+		dao = new PizzaDaoImpl(); // Allocating memory to object of PizzaDao class using PizzaDaoImpl 's constructor 
+							  //at the time of PizzaServices's object creation 
+	}
+	
+	@Override
+	public void addPizza(Pizza p) { //addPizza method to add Pizza into the table (database)
+		dao.beginTransaction();
+		dao.addPizza(p);
+		dao.commitTransaction();
+	}
+
+	@Override
+	public void updatePizza(Pizza p) { //updatePizza method to Update Pizza into the table (database)
+		dao.beginTransaction();
+		dao.updatePizza(p);
+		dao.commitTransaction();
+		
+	}
+
+	@Override
+	public void deletePizza(Pizza p) { //deletePizza method to delete Pizza from the table (database)
+		dao.beginTransaction();
+		dao.deletePizza(p);
+		dao.commitTransaction();
+		
+	}
+
+	@Override
+	public Pizza findPizzaByNo(int p) { //findPizzaByNo method to find Pizza from the table (database)
+		dao.beginTransaction();
+		Pizza p1 = dao.findPizzaByNo(p);
+		dao.commitTransaction();
+		return p1;
+	}
+
+}
+
+5. Interface PizzaDao : -
+-------------------------------
+package com.pizzamanagement.Dao;
+
+import com.pizzamanagement.model.Pizza;
+
+public interface PizzaDao {
+
+//Dao Layer Interface (Abstract methods) : -
+
+    	void addPizza(Pizza p);
+	
+	void updatePizza(Pizza p);
+	
+	void deletePizza(Pizza p);
+	
+	Pizza findPizzaByNo(int p);
+	
+	void beginTransaction();
+	
+	void commitTransaction();
+	
+}
+
+6. PizzaDaoImpl : -
+------------------------
+package com.pizzamanagement.Dao;
+
+import javax.persistence.EntityManager;
+
+import com.pizzamanagement.model.Pizza;
+
+public class PizzaDaoImpl implements PizzaDao {
+
+// Dao Layer interacts with the databse, therefore implementation of methods
+
+	private EntityManager entity; //EntityManager type object
+	
+	public PizzaDaoImpl() {
+		entity = JPA.getEntityManager(); //
+	}
+	
+	@Override
+	public void addPizza(Pizza p) {
+		
+		entity.persist(p);	//DML command to insert/save
+	}
+
+	@Override
+	public void updatePizza(Pizza p) {
+		
+		entity.merge(p);	//DML command to update
+	}
+
+	@Override
+	public void deletePizza(Pizza p) {
+		
+		entity.remove(p);	//DML command to delete
+	}
+
+	@Override
+	public Pizza findPizzaByNo(int p) {
+		
+		Pizza p1 = entity.find(Pizza.class, p);	//DML command to find
+		return p1;
+	}
+
+	@Override
+	public void beginTransaction() {
+		
+		entity.getTransaction().begin();			//Begin Transaction
+	}
+
+	@Override
+	public void commitTransaction() {
+		
+		entity.getTransaction().commit();		//Commit Transaction
+	}
+
+}
+
+7. Class JPA : -
+---------------------------------------------------
+package com.pizzamanagement.Dao;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class JPA {
+
+	private static EntityManagerFactory factory;
+	private static EntityManager entityManager;
+	
+	static {
+		factory = Persistence.createEntityManagerFactory("yajat"); 
+	}
+	
+	public static EntityManager getEntityManager() {
+		if(entityManager==null || !entityManager.isOpen()) {
+			entityManager = factory.createEntityManager();
+		}
+		return entityManager;
+	}
+	
+}
+
+8. Persistence.xml : -
+---------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+                      http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+  version="2.0">
+  
+	<persistence-unit name="yajat" transaction-type="RESOURCE_LOCAL">
+	
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<class>com.pizzamanagement.model.Pizza</class>
+
+		<properties>
+		<!-- database properties -->
+			<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost/one" />
+			<property name="javax.persistence.jdbc.user" value="postgres" />
+			<property name="javax.persistence.jdbc.password" value="abc123" />
+			<property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />
+			
+			<!-- hibernate properties -->
+			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+			<property name="hibernate.hbm2ddl.auto" value="update"/> <!-- create/update  -->
+			<property name="hibernate.show_sql" value="true"/>
+		</properties>
+		
+	</persistence-unit>
+	
+</persistence>
+
+
+
+
+
